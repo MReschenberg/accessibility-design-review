@@ -1,0 +1,98 @@
+<h1>Accessibility Design Review: Containers &mdash; secondary (non-color) identifiers</h1>
+
+<p>
+<strong>Figma:</strong> <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f/Containers?node-id=17060-2784">Containers</a><br>
+<strong>Page reviewed:</strong> <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114927">A11y Review &mdash; June 09, 2026</a> (three idea sheets: <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114955">Pattern</a>, <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">Tab Hover Preview</a>, <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2667">&ldquo;Counting&rdquo; Dots</a>)<br>
+<strong>Platform:</strong> Desktop (Firefox chrome &mdash; horizontal &amp; vertical tabs)<br>
+<strong>Reviewer:</strong> Claude Code (Mozilla accessibility team)
+</p>
+
+<hr>
+
+<h2>What&rsquo;s covered</h2>
+
+<p>This sheet explores three ways to let people tell Containers apart by something <em>other than</em> the container&rsquo;s colored line &mdash; the core of WCAG 1.4.1 <em>Use of Color</em>, since a color-only indicator excludes color-blind and many low-vision users. <strong>Idea 01 (Pattern)</strong> adds a line-style chooser (&ldquo;Solid line&rdquo;, dashed, dotted&hellip;) to the top-border indicator; <strong>Idea 02 (Tab Hover Preview)</strong> adds the container icon (and optionally title) to the tab hover card; <strong>Idea 03 (&ldquo;Counting&rdquo; Dots)</strong> adds a row of small dots to the top border. Each is shown on the LinkedIn mock in both horizontal- and vertical-tab layouts, plus an &ldquo;Add New Container&rdquo; dialog. This is a follow-up review: there is an active thread of unresolved accessibility comments from <strong>Morgan Rae Reschenberg</strong>, all folded into the findings below so you have one complete list. The overall direction &mdash; adding a second, non-color channel &mdash; is exactly right; the findings are about making each channel actually perceivable and exposed to assistive tech.</p>
+
+<hr>
+
+<h2>Findings</h2>
+
+<h3>1. Container identity must reach screen-reader users regardless of the visual treatment &mdash; <code>S2</code></h3>
+<p>All three ideas are <em>visual</em> secondary indicators; none of them, on their own, tells a screen-reader user which container a tab belongs to. The container name needs to be part of the tab&rsquo;s accessible name in <strong>both horizontal and vertical tabs</strong>. Today it is exposed on horizontal tabs in Nightly but not on vertical tabs; parity is required before this migrates into core. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2667">the vertical-tab mock</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1799836594">@Morgan Rae Reschenberg</a>)</em></p>
+
+<h3>2. The colored top-border indicator does not meet non-text contrast &mdash; <code>S2</code></h3>
+<p>The thin colored line that marks a container is a meaningful UI indicator, so it must meet WCAG 1.4.11 <em>Non-text Contrast</em> (3:1) against its adjacent background &mdash; and it does not for several of the default swatches, in light mode especially. One measured combination sits at ~1.9:1 in light mode, and another at ~2.75:1. Because these are the colors we <em>ship</em> as choices, every default swatch needs to pass 3:1 in <strong>both light and dark</strong> default themes. See the indicator on <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114955">the Pattern sheet</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797749087">@Morgan Rae Reschenberg</a>; light-mode value <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797751939">here</a> and near-miss <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797750918">here</a>.)</em></p>
+
+<h3>3. Container icons on their colored backgrounds don&rsquo;t meet 3:1 &mdash; <code>S2</code></h3>
+<p>The container icon rendered on its colored chip is a non-text element and must clear 3:1. At least one icon/background pair fails today, and we don&rsquo;t yet have mocks of the full icon set on each colored background in both pressed and non-pressed states to confirm the rest. Please provide those combinations so every default pairing can be verified. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">the Add New Container dialog</a> and the tab chips. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797737983">@Morgan Rae Reschenberg</a>.)</em></p>
+
+<h3>4. &ldquo;Add New Container&rdquo; dialog must manage focus as a blocking modal &mdash; <code>S2</code></h3>
+<p>The dialog needs full keyboard/screen-reader focus management: trap focus while open, close on <code>Esc</code>, and return focus to the control it launched from. Since it opens from a context menu, landing focus back on the tab is the right target. It should also be blocking (a true modal). See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">the dialog</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797755314">@Morgan Rae Reschenberg</a>.)</em></p>
+
+<h3>5. Color and Icon choosers should be true radio groups &mdash; <code>S2</code></h3>
+<p>In the dialog, the <strong>Color</strong> row and the <strong>Icon</strong> row are each a single-select from a set &mdash; that is a radio group (<code>role="radiogroup"</code> with radio children), not a row of buttons. Only the selected swatch/icon should be a tab stop, and arrow keys should move selection. Right now the selected state is also shown only by a colored ring; add a non-color cue (e.g. a check) so selection isn&rsquo;t conveyed by color alone (1.4.1). See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">the Color/Icon pickers</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797756423">@Morgan Rae Reschenberg</a>.)</em></p>
+
+<h3>6. Every color and icon choice needs an accessible name &mdash; <code>S3</code></h3>
+<p>The swatches and icons are presented visually only. Each color needs an exposed name (&ldquo;Blue&rdquo;, &ldquo;Pink&rdquo;&hellip;) and each icon needs a name (&ldquo;Briefcase&rdquo;, &ldquo;Music&rdquo;&hellip;) so screen-reader users can choose. In the resulting context-menu item, the recommended pattern is to keep the <em>name</em> as the plain text label and put the color + icon in the <em>description</em>. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">the pickers</a>. <em>(Previously raised by @Morgan Rae Reschenberg: <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797741982">color names</a>, <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797741813">icon names</a>, <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797743954">menu-item exposure</a>.)</em></p>
+
+<h3>7. Tab Hover Preview is hover-only &mdash; must also work on keyboard focus &mdash; <code>S3</code></h3>
+<p>Idea 02 puts the container identity in the tab <em>hover</em> card. Hover isn&rsquo;t available to keyboard or touch users, so the same preview must appear on keyboard <strong>focus</strong>, and per WCAG 1.4.13 it must be dismissable, hoverable, and persistent. The designer&rsquo;s own note (&ldquo;reduced scannability / required extra click&rdquo;) reinforces that hover shouldn&rsquo;t be the <em>only</em> path to container identity &mdash; it should supplement the always-visible indicator and the accessible name (Finding 1), not replace them. Of the two layouts shown, the version that groups the icon <em>with</em> the tab title is preferred for screen-magnifier users, since the icon and title stay together in the viewport. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">the Tab Hover Preview sheet</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797726167">@Morgan Rae Reschenberg</a> &mdash; recommend adopting the grouped version in 155.)</em></p>
+
+<h3>8. Container icons in High Contrast Mode should follow the system text color &mdash; <code>S3</code></h3>
+<p>In HCM the container icons should render in the system text color (so they stay visible against the forced background), while the color <em>swatches</em> in the chooser keep their real colors as in non-HCM mode. No HCM variant of any of the three sheets is shown yet &mdash; please add one, since the thin colored indicators and icon chips are exactly the elements most likely to disappear when system colors are forced. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2667">the indicator sheet</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797757535">@Morgan Rae Reschenberg</a>.)</em></p>
+
+<h3>9. The container tab needs <code>aria-haspopup="menu"</code> and related attributes &mdash; <code>S3</code></h3>
+<p>The tab control that opens the container context menu should advertise that it opens a menu (<code>aria-haspopup="menu"</code>) along with the appropriate expanded/controls attributes, so screen-reader users know the affordance exists. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">the tab strip</a>. <em>(Previously raised by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797739931">@Morgan Rae Reschenberg</a>.)</em></p>
+
+<h3>10. &ldquo;Counting Dots&rdquo; is the weakest of the three for low vision &mdash; <code>S3</code></h3>
+<p>A row of small dots (each only a few pixels on the top border &mdash; see <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2784">the dot indicator</a>) asks the user to <em>count</em> to identify a container. People can reliably recognize a count at a glance only up to about four; beyond that it becomes a deliberate counting task, which is slow for everyone and unreliable at low visual acuity &mdash; and the designer&rsquo;s own &ldquo;might run out of dots&rdquo; note reflects the same ceiling. It also carries no inherent text/programmatic value. If pursued, cap the count low, make each dot large enough to meet non-text contrast, and expose the number as text. The <strong>Pattern</strong> approach is stronger here because a line style (dashed/dotted) is a shape difference that also survives HCM &mdash; but a pattern on a ~2px line is hard to perceive, so pair it with a taller indicator and the icon rather than relying on the line alone. <em>(Relates to <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1796116112">@Morgan Rae Reschenberg&rsquo;s</a> concern that repeated small shapes won&rsquo;t be differentiable on large screens.)</em></p>
+
+<h3>11. Split view must advertise each view&rsquo;s container to screen readers &mdash; <code>S3</code></h3>
+<p>When split view is active, a screen reader focusing the outer document should be told which container each &ldquo;view&rdquo; belongs to &mdash; otherwise the container distinction is lost the moment two are on screen together. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114927">the review page</a>. <em>(Raised as a question by <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797732355">@Morgan Rae Reschenberg</a> &mdash; see Questions.)</em></p>
+
+<h3>12. Deemphasized text uses alpha transparency &mdash; will lose contrast in HCM &mdash; <code>S3</code></h3>
+<p>Several secondary strings are set with transparency rather than an opaque token &mdash; e.g. &ldquo;Trending searches&rdquo; and the hover-card &ldquo;Description&rdquo;/&ldquo;Hint&rdquo; and URL text at <code>rgba(24, 14, 48, 0.7)</code>. On the current white surfaces this passes, but in High Contrast Mode the alpha is preserved and the text blends toward the forced background, so its contrast is no longer guaranteed. Use an opaque de-emphasized text token instead of an alpha value. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">the tab-preview card</a>. <em>(New finding.)</em></p>
+
+<h3>13. &ldquo;Pattern&rdquo; vs &ldquo;Secondary Indicator&rdquo; &mdash; use one label &mdash; <code>S4</code></h3>
+<p>The same dropdown is labeled <strong>Pattern</strong> on Idea 01 and <strong>Secondary Indicator</strong> on Idea 03. Pick one consistent label (&ldquo;Secondary indicator&rdquo; reads more clearly and doesn&rsquo;t presume a line style) so the field name is stable for everyone, including screen-reader users hearing it announced. Compare <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">Idea 01 dialog</a> and <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">Idea 03 dialog</a>. <em>(New finding.)</em></p>
+
+<h3>14. Color swatch / icon targets are at the minimum size &mdash; <code>S4</code></h3>
+<p>The color swatches and icon buttons render at roughly 24&nbsp;px. That meets the WCAG 2.5.8 (AA) 24&nbsp;px minimum but leaves no margin, and they sit close together; nudging them toward 44&nbsp;px (2.5.5, AAA) with a little more spacing would make the picker easier to operate for motor-impaired users. See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">the picker rows</a>. <em>(New finding.)</em></p>
+
+<hr>
+
+<h2>Questions for the designer</h2>
+<ol>
+<li>Is the split-view container advertisement (Finding 11) something the add-on does today, or new work for the core migration? See <a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?commentId=1797732355">the thread</a>.</li>
+<li>Which of the three ideas is the intended direction &mdash; or are they meant to combine (e.g. icon + pattern + accessible name)? Our recommendation is to treat the <strong>accessible name</strong> as mandatory and layer <strong>icon + line pattern</strong> as the visible secondary channel, and to drop counting-dots.</li>
+<li>Do you have HCM and dark-mode variants of these three sheets we can review (Finding 8)?</li>
+</ol>
+
+<hr>
+
+<h2>Summary</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+<thead>
+<tr><th>#</th><th>Finding</th><th>Severity</th><th>Frame</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Container name not exposed to SR in vertical tabs</td><td><code>S2</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2667">Link</a></td></tr>
+<tr><td>2</td><td>Colored indicator fails non-text contrast (3:1)</td><td><code>S2</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114955">Link</a></td></tr>
+<tr><td>3</td><td>Icons on colored backgrounds fail 3:1</td><td><code>S2</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">Link</a></td></tr>
+<tr><td>4</td><td>Dialog focus management / blocking modal</td><td><code>S2</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">Link</a></td></tr>
+<tr><td>5</td><td>Color &amp; Icon choosers should be radio groups (+ non-color selected state)</td><td><code>S2</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">Link</a></td></tr>
+<tr><td>6</td><td>Colors &amp; icons need accessible names</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">Link</a></td></tr>
+<tr><td>7</td><td>Tab hover preview must also fire on keyboard focus (1.4.13)</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">Link</a></td></tr>
+<tr><td>8</td><td>HCM: icons follow system text color; no HCM variant shown</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2667">Link</a></td></tr>
+<tr><td>9</td><td>Tab needs <code>aria-haspopup="menu"</code></td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">Link</a></td></tr>
+<tr><td>10</td><td>&ldquo;Counting dots&rdquo; weakest for low vision; prefer icon + pattern</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2784">Link</a></td></tr>
+<tr><td>11</td><td>Split view must advertise each view&rsquo;s container</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17052-114927">Link</a></td></tr>
+<tr><td>12</td><td>Deemphasized text uses alpha; loses contrast in HCM</td><td><code>S3</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-92155">Link</a></td></tr>
+<tr><td>13</td><td>Inconsistent field label (&ldquo;Pattern&rdquo; vs &ldquo;Secondary Indicator&rdquo;)</td><td><code>S4</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17060-2768">Link</a></td></tr>
+<tr><td>14</td><td>Swatch/icon targets at minimum size</td><td><code>S4</code></td><td><a href="https://www.figma.com/design/manq7LlXFPeIUvbhoBif8f?node-id=17053-90900">Link</a></td></tr>
+</tbody>
+</table>
+
+<p><strong>14 findings (5 &times; S2, 7 &times; S3, 2 &times; S4), consolidating 12 still-open threads from Morgan Rae Reschenberg plus 3 new issues.</strong><br>
+The strategic direction is right &mdash; adding a non-color channel is the correct fix for 1.4.1 &mdash; but the design isn&rsquo;t ship-ready until the S2 items are resolved: the container name must reach screen-reader users on both tab orientations, the default indicator colors and icon chips must clear 3:1, the create/edit dialog must behave as a proper focus-managing modal, and the color/icon pickers must be real radio groups. Our recommendation is to make the accessible name mandatory and combine the icon with a line pattern as the visible secondary indicator, rather than relying on counting dots.</p>
